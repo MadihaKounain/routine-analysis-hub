@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Tasks - Routine Analytics Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-gray-900">✅ Tasks</h1>
+        <button onclick="showTaskModal()" class="btn btn-primary">+ New Task</button>
+    </div>
+
+    <!-- Task List -->
+    <div class="bg-white rounded-lg shadow">
+        <div id="taskList" class="divide-y">
+            {% for task in tasks %}
+            <div class="task-item p-4" data-id="{{ task.id }}">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4 flex-1">
+                        <input type="checkbox" class="task-checkbox" {% if task.status=='completed' %}checked{% endif %}
+                            onchange="updateTaskStatus({{ task.id }}, this.checked)">
+                        <div class="flex-1">
+                            <h3
+                                class="font-medium text-gray-900 {% if task.status == 'completed' %}line-through text-gray-500{% endif %}">
+                                {{ task.title }}
+                            </h3>
+                            <div class="flex space-x-2 mt-1">
+                                <span class="inline-block px-2 py-1 text-xs rounded-full 
+                                    {% if task.priority == 'high' %}bg-red-100 text-red-700
+                                    {% elif task.priority == 'medium' %}bg-yellow-100 text-yellow-700
+                                    {% else %}bg-green-100 text-green-700{% endif %}">
+                                    {{ task.priority|upper }}
+                                </span>
+                                {% if task.completion_time %}
+                                <span class="text-xs text-gray-600">{{ task.completion_time }} mins</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="deleteTask({{ task.id }})" class="text-red-600 hover:text-red-700">🗑️</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Task Modal -->
+<div id="taskModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <h2 class="text-lg font-bold text-gray-900 mb-4">Create New Task</h2>
+        <form onsubmit="createTask(event)">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
+                    <input type="text" id="taskTitle" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                    <select id="taskPriority" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Estimate (minutes)</label>
+                    <input type="number" id="taskEstimate" min="1"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+            </div>
+            <div class="flex space-x-2 mt-6">
+                <button type="submit" class="btn btn-primary flex-1">Create</button>
+                <button type="button" onclick="closeTaskModal()" class="btn btn-secondary flex-1">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function showTaskModal() {
+        document.getElementById('taskModal').classList.remove('hidden');
+    }
+
+    function closeTaskModal() {
+        document.getElementById('taskModal').classList.add('hidden');
+        document.getElementById('taskTitle').value = '';
+    }
+
+    function createTask(e) {
+        e.preventDefault();
+        const title = document.getElementById('taskTitle').value;
+        const priority = document.getElementById('taskPriority').value;
+        const estimate_minutes = document.getElementById('taskEstimate').value;
+
+        fetch('{{ url_for("tasks.create_task") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: title,
+                priority: priority,
+                estimate_minutes: estimate_minutes ? parseInt(estimate_minutes) : null
+            })
+        }).then(r => {
+            if (!r.ok) {
+                return r.json().then(e => Promise.reject(e.error || 'Failed to create task'));
+            }
+            return r.json();
+        }).then(data => {
+            closeTaskModal();
+            location.reload();
+        }).catch(error => {
+            alert('Error: ' + error);
+        });
+    }
+
+    function updateTaskStatus(taskId, completed) {
+        fetch(`/api/tasks/${taskId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: completed ? 'completed' : 'pending' })
+        }).then(r => r.json());
+    }
+
+    function deleteTask(taskId) {
+        if (!confirm('Delete this task?')) return;
+        fetch(`/api/tasks/${taskId}`, {
+            method: 'DELETE'
+        }).then(r => location.reload());
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Routine Analytics Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <h1 class="text-3xl font-bold text-gray-900">👨‍💼 Admin Dashboard</h1>
+
+    <!-- System Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm font-medium text-gray-600">Total Users</div>
+            <div class="text-3xl font-bold text-gray-900 mt-2">{{ users|length }}</div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm font-medium text-gray-600">Total Tasks</div>
+            <div class="text-3xl font-bold text-gray-900 mt-2">
+                {% set all_tasks = [] %}
+                {% for a in analytics %}
+                {% if a.analytics.summary.totalTasks %}
+                {% set _ = all_tasks.append(a.analytics.summary.totalTasks) %}
+                {% endif %}
+                {% endfor %}
+                {{ all_tasks|sum }}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm font-medium text-gray-600">Avg Productivity</div>
+            <div class="text-3xl font-bold text-indigo-600 mt-2">
+                {% set scores = [] %}
+                {% for a in analytics %}
+                {% if a.analytics.summary.productivityScore %}
+                {% set _ = scores.append(a.analytics.summary.productivityScore) %}
+                {% endif %}
+                {% endfor %}
+                {% if scores %}{{ (scores|sum / scores|length)|round(0) }}%{% else %}—{% endif %}
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-sm font-medium text-gray-600">Active Users</div>
+            <div class="text-3xl font-bold text-gray-900 mt-2">{{ analytics|length }}</div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Quick Access</h2>
+        <div class="flex gap-4">
+            <a href="{{ url_for('admin.users_list') }}" class="btn btn-primary">View All Users</a>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary">Logout</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

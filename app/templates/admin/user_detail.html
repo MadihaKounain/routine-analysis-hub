@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}User Detail - Admin Panel - Routine Analytics Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-gray-900">👤 {{ user.username }}</h1>
+        <a href="{{ url_for('admin.users_list') }}" class="btn btn-secondary">Back to Users</a>
+    </div>
+
+    <!-- User Info -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Account Information</h2>
+            <dl class="space-y-3">
+                <div>
+                    <dt class="text-sm font-medium text-gray-600">Username</dt>
+                    <dd class="text-lg text-gray-900">{{ user.username }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-600">Email</dt>
+                    <dd class="text-lg text-gray-900">{{ user.email }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-600">Joined</dt>
+                    <dd class="text-lg text-gray-900">{{ user.created_at[:10] }}</dd>
+                </div>
+            </dl>
+        </div>
+
+        <!-- Analytics Summary -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Analytics Summary</h2>
+            <dl class="space-y-3">
+                <div>
+                    <dt class="text-sm font-medium text-gray-600">Productivity Score</dt>
+                    <dd class="text-lg text-indigo-600 font-bold">{{ analytics.summary.productivityScore }}%</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-600">Tasks Completed</dt>
+                    <dd class="text-lg text-gray-900">{{ analytics.summary.completedTasks }}/{{
+                        analytics.summary.totalTasks }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-600">Total Focus Time</dt>
+                    <dd class="text-lg text-gray-900">{{ analytics.summary.totalFocusMinutes }} minutes</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Detailed Data -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Tasks -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">✅ Tasks</h3>
+            <div class="space-y-2">
+                <div class="text-2xl font-bold text-gray-900">{{ tasks|length }}</div>
+                <div class="text-sm text-gray-600">
+                    <div>✓ {{ tasks|selectattr('status', 'equalto', 'completed')|list|length }} completed</div>
+                    <div>⏳ {{ tasks|selectattr('status', 'equalto', 'pending')|list|length }} pending</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Journal -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">📝 Journal</h3>
+            <div class="space-y-2">
+                <div class="text-2xl font-bold text-gray-900">{{ journal|length }}</div>
+                <div class="text-sm text-gray-600">entries written</div>
+            </div>
+        </div>
+
+        <!-- Finance -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">💰 Finance</h3>
+            <div class="space-y-2">
+                <div class="text-2xl font-bold text-gray-900">₹{{ (finance|sum(attribute='amount'))|round(2) }}</div>
+                <div class="text-sm text-gray-600">{{ finance|length }} transactions</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Recent Tasks -->
+        {% if tasks %}
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Tasks</h3>
+            <div class="space-y-2">
+                {% for task in tasks[:5] %}
+                <div class="flex items-center justify-between text-sm">
+                    <span
+                        class="{% if task.status == 'completed' %}line-through text-gray-500{% else %}text-gray-900{% endif %}">{{
+                        task.title }}</span>
+                    <span class="text-xs px-2 py-1 rounded-full 
+                        {% if task.priority == 'high' %}bg-red-100 text-red-700
+                        {% elif task.priority == 'medium' %}bg-yellow-100 text-yellow-700
+                        {% else %}bg-green-100 text-green-700{% endif %}">
+                        {{ task.priority }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Habits -->
+        {% if habits %}
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">🔄 Habits</h3>
+            <div class="space-y-2">
+                {% set unique_habits = habits|map(attribute='habit_name')|unique|list %}
+                {% for habit_name in unique_habits[:5] %}
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-900">{{ habit_name }}</span>
+                    <span class="font-medium text-indigo-600">{{ habits|selectattr('habit_name', 'equalto',
+                        habit_name)|list|length }}x</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

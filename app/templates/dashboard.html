@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Routine Analytics Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div>
+        <h1 class="text-4xl font-bold text-slate-900">📊 Dashboard</h1>
+        <p class="text-slate-500 mt-2">Your wellbeing overview & key metrics</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Total Tasks -->
+        <div
+            class="group relative rounded-2xl bg-white p-6 shadow-sm border border-slate-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500 mb-1">Total Tasks</p>
+                    <p class="text-4xl font-bold text-slate-900">{{ analytics.summary.totalTasks }}</p>
+                    <p class="text-xs text-green-600 font-semibold mt-3">{{ analytics.summary.completedTasks }}
+                        completed</p>
+                </div>
+                <div class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-lg">✅</div>
+            </div>
+            <div
+                class="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10">
+            </div>
+        </div>
+
+        <!-- Productivity Score -->
+        <div
+            class="group relative rounded-2xl bg-white p-6 shadow-sm border border-slate-200 hover:shadow-lg hover:border-purple-200 transition-all duration-300">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500 mb-1">Productivity Score</p>
+                    <p class="text-4xl font-bold text-purple-600">{{ analytics.summary.productivityScore }}%</p>
+                    <p class="text-xs text-slate-600 font-medium mt-3">{{ analytics.summary.pendingTasks }} pending</p>
+                </div>
+                <div class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 text-lg">📈
+                </div>
+            </div>
+            <div
+                class="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10">
+            </div>
+        </div>
+
+        <!-- Total Journals -->
+        <div
+            class="group relative rounded-2xl bg-white p-6 shadow-sm border border-slate-200 hover:shadow-lg hover:border-pink-200 transition-all duration-300">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500 mb-1">Journal Entries</p>
+                    <p class="text-4xl font-bold text-slate-900">{{ analytics.summary.totalJournals }}</p>
+                    <p class="text-xs text-slate-600 font-medium mt-3">This week</p>
+                </div>
+                <div class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-pink-100 text-lg">📝</div>
+            </div>
+            <div
+                class="absolute inset-0 rounded-2xl bg-gradient-to-br from-pink-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10">
+            </div>
+        </div>
+
+        <!-- Total Expenses -->
+        <div
+            class="group relative rounded-2xl bg-white p-6 shadow-sm border border-slate-200 hover:shadow-lg hover:border-amber-200 transition-all duration-300">
+            <div class="flex items-start justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500 mb-1">Total Expenses</p>
+                    <p class="text-4xl font-bold text-slate-900">{{ analytics.summary.totalExpenses }}</p>
+                    <p class="text-xs text-amber-600 font-semibold mt-3">₹{{ analytics.summary.totalSpent }} spent</p>
+                </div>
+                <div class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-lg">💰
+                </div>
+            </div>
+            <div
+                class="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10">
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Daily Activity Chart -->
+        <div
+            class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow duration-300">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-slate-900">📊 Daily Activity</h2>
+                <span
+                    class="inline-flex items-center rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">This
+                    Week</span>
+            </div>
+            <div style="position: relative; height: 320px;">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Mood Trend Chart -->
+        {% if analytics.moodTrend.trend %}
+        <div
+            class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow duration-300">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-slate-900">😊 Mood Trend</h2>
+                <span
+                    class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">7
+                    Days</span>
+            </div>
+            <div style="position: relative; height: 320px;">
+                <canvas id="moodChart"></canvas>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Habit Streaks -->
+    {% if analytics.habitStreaks %}
+    <div
+        class="rounded-2xl bg-white p-6 shadow-sm border border-slate-200 hover:shadow-lg transition-shadow duration-300">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-slate-900">🔄 Habit Streaks</h2>
+            <a href="{{ url_for('habits.index') }}"
+                class="text-sm font-semibold text-indigo-600 hover:text-indigo-700">View All →</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for habit in analytics.habitStreaks %}
+            <div
+                class="group relative rounded-xl bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 p-5 hover:border-indigo-300 transition-all duration-300">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex-1">
+                        <p class="font-semibold text-slate-900">{{ habit.habit_name }}</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ habit.total_completions }} completions</p>
+                    </div>
+                    <div class="text-2xl">🔥</div>
+                </div>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-3xl font-bold text-indigo-600">{{ habit.streak }}</span>
+                    <span class="text-sm text-slate-500">day streak</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Daily Activity Chart
+    const activityData = {{ analytics.dailyActivity| tojson }};
+    const activityCtx = document.getElementById('activityChart');
+    new Chart(activityCtx, {
+        type: 'line',
+        data: {
+            labels: activityData.map(d => d.date),
+            datasets: [{
+                label: 'Daily Activity',
+                data: activityData.map(d => d.value),
+                borderColor: '#4f46e5',
+                backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                borderWidth: 2.5,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 4,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#4f46e5',
+                pointBorderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    // Mood Chart
+    {% if analytics.moodTrend.trend %}
+    const moodData = {{ analytics.moodTrend.trend| tojson }};
+    const moodCtx = document.getElementById('moodChart');
+    new Chart(moodCtx, {
+        type: 'line',
+        data: {
+            labels: moodData.map(d => d.date),
+            datasets: [{
+                label: 'Mood (1-10)',
+                data: moodData.map(d => d.mood),
+                borderColor: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.08)',
+                borderWidth: 2.5,
+                tension: 0.4,
+                fill: true,
+                pointRadius: 4,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#f59e0b',
+                pointBorderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 10,
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+    {% endif %}
+</script>
+{% endblock %}

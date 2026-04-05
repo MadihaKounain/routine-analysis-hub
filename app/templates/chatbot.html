@@ -1,0 +1,510 @@
+{% extends "base.html" %}
+
+{% block title %}AI Wellness Coach - Routine Analytics Hub{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8">
+    <div class="max-w-5xl mx-auto px-4">
+        <!-- Header Section -->
+        <div class="text-center mb-8 animate-fade-in">
+            <div
+                class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-full mb-6 shadow-2xl">
+                <span class="text-4xl">🤖</span>
+            </div>
+            <h1
+                class="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
+                AI Wellness Coach
+            </h1>
+            <p class="text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                Your personalized mental health companion. Get evidence-based advice on mood, productivity, stress
+                management, and overall wellbeing. Available 24/7 just for you.
+            </p>
+        </div>
+
+        <!-- Main Chat Container -->
+        <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20">
+            <!-- Chat Header with Status -->
+            <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white p-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <div
+                                class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-white/30 shadow-lg">
+                                <span class="text-3xl">🧠</span>
+                            </div>
+                            <div
+                                class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-3 border-white animate-pulse">
+                            </div>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold">Your AI Coach</h2>
+                            <p class="text-blue-100 text-sm">Online & Ready to Help</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-blue-100 mb-1">Powered by</div>
+                        <div class="font-semibold text-lg">Google Gemini</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Area -->
+            <div id="chatMessages"
+                class="h-[600px] overflow-y-auto p-8 bg-gradient-to-b from-white via-blue-50/30 to-purple-50/30 space-y-6 scroll-smooth">
+                <!-- Welcome Message -->
+                <div class="flex justify-start animate-fade-in">
+                    <div
+                        class="bg-white rounded-3xl rounded-tl-none p-6 max-w-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <div
+                                class="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+                                <span class="text-xl">👋</span>
+                            </div>
+                            <div>
+                                <span class="font-bold text-gray-900">AI Coach</span>
+                                <p class="text-xs text-gray-500">just now</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-800 leading-relaxed text-sm">
+                            Hello! I'm your personal AI wellness coach, powered by advanced AI. I'm here to provide
+                            personalized, evidence-based support for your mental health, productivity, stress
+                            management, and overall wellbeing.
+                            <br><br>
+                            <strong>How I can help:</strong>
+                        <ul class="list-disc list-inside mt-3 space-y-1 text-gray-700">
+                            <li>Mood tracking & emotional support</li>
+                            <li>Stress management techniques</li>
+                            <li>Sleep improvement strategies</li>
+                            <li>Goal setting & life planning</li>
+                            <li>Productivity & focus tips</li>
+                            <li>Building healthy habits</li>
+                            <li>Motivation & inspiration</li>
+                        </ul>
+                        </p>
+                        <div class="mt-4 pt-3 border-t border-gray-100 text-xs text-gray-500">
+                            💡 Tip: Ask me anything about your wellness journey. I'll provide thoughtful, personalized
+                            guidance.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Suggestion Buttons -->
+            <div class="border-t border-gray-200 bg-gradient-to-b from-gray-50 to-white p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-lg">💡</span>
+                        <span class="font-semibold text-gray-800">Quick Topics</span>
+                    </div>
+                    <button onclick="clearMessages()"
+                        class="text-xs text-gray-500 hover:text-gray-700 hover:underline transition">Clear Chat</button>
+                </div>
+                <div id="suggestionsContainer" class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <button onclick="sendExampleMessage('I\'m feeling overwhelmed. What can I do right now?')"
+                        class="suggestion-btn group">
+                        <span class="text-lg mb-2 block">😰</span>
+                        <span class="text-sm font-medium">Feeling Overwhelmed?</span>
+                    </button>
+                    <button onclick="sendExampleMessage('How can I sleep better tonight?')"
+                        class="suggestion-btn group">
+                        <span class="text-lg mb-2 block">😴</span>
+                        <span class="text-sm font-medium">Better Sleep Tips</span>
+                    </button>
+                    <button onclick="sendExampleMessage('Help me stay focused and productive today')"
+                        class="suggestion-btn group">
+                        <span class="text-lg mb-2 block">🎯</span>
+                        <span class="text-sm font-medium">Boost Productivity</span>
+                    </button>
+                    <button onclick="sendExampleMessage('I want to set a meaningful goal. Where do I start?')"
+                        class="suggestion-btn group">
+                        <span class="text-lg mb-2 block">🏆</span>
+                        <span class="text-sm font-medium">Goal Setting Ideas</span>
+                    </button>
+                    <button onclick="sendExampleMessage('Give me some motivation and inspiration')"
+                        class="suggestion-btn group">
+                        <span class="text-lg mb-2 block">⚡</span>
+                        <span class="text-sm font-medium">Need Motivation</span>
+                    </button>
+                    <button onclick="sendExampleMessage('What are some mindfulness techniques I can try?')"
+                        class="suggestion-btn group">
+                        <span class="text-lg mb-2 block">🧘</span>
+                        <span class="text-sm font-medium">Mindfulness Guide</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="border-t border-gray-200 bg-white p-6">
+                <div class="flex gap-3 items-end">
+                    <div class="flex-1 relative">
+                        <input type="text" id="chatInput" placeholder="Ask me anything about your wellness journey..."
+                            class="w-full px-5 py-4 pr-14 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-200/50 transition-all duration-200 text-sm"
+                            maxlength="500" onkeypress="handleKeyPress(event)">
+                        <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-xs text-gray-400 font-medium"
+                            id="charCount">0/500</div>
+                    </div>
+                    <button onclick="sendMessage()" id="sendButton"
+                        class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-4 rounded-2xl transition-all duration-200 font-bold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                        </svg>
+                        <span>Send</span>
+                    </button>
+                </div>
+                <div class="flex items-center justify-between mt-4 px-2">
+                    <p class="text-xs text-gray-500 flex items-center space-x-1">
+                        <span>🔒</span>
+                        <span>Your conversations are private and secure</span>
+                    </p>
+                    <div class="text-xs text-gray-500">Press <kbd
+                            class="px-2 py-1 bg-gray-100 rounded text-xs ml-1">Enter ↵</kbd></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+            <div
+                class="group bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-8 text-center hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-white/20">
+                <div
+                    class="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                    <span class="text-3xl">🎯</span>
+                </div>
+                <h3 class="font-bold text-gray-900 mb-2 text-lg">Goal Setting</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">Break down your dreams into achievable steps using
+                    proven goal-setting frameworks</p>
+            </div>
+
+            <div
+                class="group bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-8 text-center hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-white/20">
+                <div
+                    class="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                    <span class="text-3xl">🧘</span>
+                </div>
+                <h3 class="font-bold text-gray-900 mb-2 text-lg">Stress Relief</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">Learn evidence-based techniques for managing anxiety
+                    and building emotional resilience</p>
+            </div>
+
+            <div
+                class="group bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg p-8 text-center hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border border-white/20">
+                <div
+                    class="w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                    <span class="text-3xl">📈</span>
+                </div>
+                <h3 class="font-bold text-gray-900 mb-2 text-lg">Productivity</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">Science-backed strategies to boost focus, build habits,
+                    and accomplish your goals</p>
+            </div>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="mt-10 text-center text-sm text-gray-600">
+            <p>
+                🌟 Powered by Google Gemini AI |
+                🔐 Your privacy is protected |
+                💬 Available anytime you need support
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .suggestion-btn {
+        @apply px-4 py-4 rounded-xl text-center font-medium border-2 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 transform hover:scale-105 hover:shadow-md;
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .message-ai {
+        animation: slideInLeft 0.4s ease-out;
+    }
+
+    .message-user {
+        animation: slideInRight 0.4s ease-out;
+    }
+
+    #chatMessages {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(59, 130, 246, 0.5) rgba(229, 231, 235, 0.7);
+    }
+
+    #chatMessages::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    #chatMessages::-webkit-scrollbar-track {
+        background: rgba(229, 231, 235, 0.7);
+        border-radius: 10px;
+    }
+
+    #chatMessages::-webkit-scrollbar-thumb {
+        background: rgba(59, 130, 246, 0.5);
+        border-radius: 10px;
+    }
+
+    #chatMessages::-webkit-scrollbar-thumb:hover {
+        background: rgba(59, 130, 246, 0.7);
+    }
+</style>
+
+<script>
+    let userData = {};
+    let isLoading = false;
+
+    // Load user data on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadUserData();
+        document.getElementById('chatInput').focus();
+    });
+
+    // Update character count
+    document.getElementById('chatInput').addEventListener('input', (e) => {
+        const count = e.target.value.length;
+        document.getElementById('charCount').textContent = `${count}/500`;
+    });
+
+    function handleKeyPress(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    }
+
+    function loadUserData() {
+        fetch('/api/user-data')
+            .then(r => r.json())
+            .then(data => userData = data)
+            .catch(err => console.log('Could not load user data:', err));
+    }
+
+    function clearMessages() {
+        if (confirm('Clear chat history? This cannot be undone.')) {
+            const messagesDiv = document.getElementById('chatMessages');
+            messagesDiv.innerHTML = `
+                <div class="flex justify-start animate-fade-in">
+                    <div class="bg-white rounded-3xl rounded-tl-none p-6 max-w-xl shadow-lg border border-gray-100">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+                                <span class="text-xl">👋</span>
+                            </div>
+                            <div>
+                                <span class="font-bold text-gray-900">AI Coach</span>
+                                <p class="text-xs text-gray-500">just now</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-800 leading-relaxed text-sm">
+                            Welcome back! The chat has been cleared. How can I help you today?
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    function sendExampleMessage(message) {
+        document.getElementById('chatInput').value = message;
+        sendMessage();
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+
+        if (!message || isLoading) return;
+
+        isLoading = true;
+        document.getElementById('sendButton').disabled = true;
+
+        const messagesDiv = document.getElementById('chatMessages');
+
+        // Add user message
+        const userMsgDiv = document.createElement('div');
+        userMsgDiv.className = 'flex justify-end message-user';
+        userMsgDiv.innerHTML = `
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-3xl rounded-tr-none p-6 max-w-xl shadow-lg">
+                <div class="flex items-center space-x-2 mb-2">
+                    <span class="text-lg">👤</span>
+                    <span class="font-bold">You</span>
+                </div>
+                <p class="text-sm break-words">${escapeHtml(message)}</p>
+            </div>
+        `;
+        messagesDiv.appendChild(userMsgDiv);
+
+        input.value = '';
+        document.getElementById('charCount').textContent = '0/500';
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        // Show typing indicator
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'flex justify-start message-ai';
+        typingDiv.id = 'typingIndicator';
+        typingDiv.innerHTML = `
+            <div class="bg-white rounded-3xl rounded-tl-none p-6 max-w-xl shadow-lg border border-gray-100">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+                        <span class="text-xl">🤖</span>
+                    </div>
+                    <div>
+                        <span class="font-bold text-gray-900">AI Coach</span>
+                        <div class="flex space-x-2 mt-1">
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        messagesDiv.appendChild(typingDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+        // Send to backend for Gemini API
+        fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: message })
+        })
+            .then(async r => {
+                const data = await r.json();
+                if (!r.ok) {
+                    throw new Error(data.error || `HTTP ${r.status}`);
+                }
+                return data;
+            })
+            .then(data => {
+                // Remove typing indicator
+                const typing = document.getElementById('typingIndicator');
+                if (typing) typing.remove();
+
+                // Add AI response
+                const aiMsgDiv = document.createElement('div');
+                aiMsgDiv.className = 'flex justify-start message-ai';
+                aiMsgDiv.innerHTML = `
+                    <div class="bg-white rounded-3xl rounded-tl-none p-6 max-w-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+                                <span class="text-xl">🤖</span>
+                            </div>
+                            <div>
+                                <span class="font-bold text-gray-900">AI Coach</span>
+                                <p class="text-xs text-gray-500">just now</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-800 leading-relaxed text-sm break-words whitespace-pre-wrap">${escapeHtml(data.response || 'Unable to get response')}</p>
+                    </div>
+                `;
+                messagesDiv.appendChild(aiMsgDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            })
+            .catch(err => {
+                const typing = document.getElementById('typingIndicator');
+                if (typing) typing.remove();
+
+                // Determine error message and icon based on error type
+                let errorIcon = '⚠️';
+                let errorTitle = 'Error';
+                let errorMessage = err.message;
+
+                if (errorMessage.includes('quota') || errorMessage.includes('Quota')) {
+                    errorIcon = '📊';
+                    errorTitle = 'API Quota Exceeded';
+                    errorMessage = 'You\'ve used up your free tier limit. ' + errorMessage;
+                } else if (errorMessage.includes('503')) {
+                    errorIcon = '🔧';
+                    errorTitle = 'Service Not Configured';
+                } else if (errorMessage.includes('timeout')) {
+                    errorIcon = '⏱️';
+                    errorTitle = 'Timeout';
+                    errorMessage = 'Request took too long. Please try again.';
+                }
+
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'flex justify-start message-ai';
+                errorDiv.innerHTML = `
+                    <div class="bg-red-50 rounded-3xl rounded-tl-none p-6 max-w-xl shadow-lg border border-red-200">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                <span class="text-xl">${errorIcon}</span>
+                            </div>
+                            <div>
+                                <span class="font-bold text-red-900">${errorTitle}</span>
+                                <p class="text-xs text-red-700">Error occurred</p>
+                            </div>
+                        </div>
+                        <p class="text-red-800 text-sm mb-3">${escapeHtml(errorMessage)}</p>
+                        <div class="text-xs text-red-700 border-t border-red-200 pt-2 mt-3">
+                            <p class="font-semibold mb-1">Next steps:</p>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li>Check your internet connection</li>
+                                <li>Try again in a moment</li>
+                                ${errorMessage.includes('quota') ? '<li>Visit <a href="https://ai.google.dev/pricing" target="_blank" class="underline">pricing page</a> to upgrade your plan</li>' : ''}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                messagesDiv.appendChild(errorDiv);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            })
+            .finally(() => {
+                isLoading = false;
+                document.getElementById('sendButton').disabled = false;
+                document.getElementById('chatInput').focus();
+            });
+    }
+
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+</script>
+{% endblock %}

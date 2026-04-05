@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Focus Sessions - Routine Analytics Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-gray-900">⏱️ Focus Sessions</h1>
+        <button onclick="showFocusModal()" class="btn btn-primary">+ Log Session</button>
+    </div>
+
+    <!-- Focus Summary -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <div class="text-sm font-medium text-gray-600">Total Focus</div>
+                <div class="text-3xl font-bold text-indigo-600 mt-2">{{ total_minutes }} min</div>
+            </div>
+            <div>
+                <div class="text-sm font-medium text-gray-600">Sessions</div>
+                <div class="text-3xl font-bold text-gray-900 mt-2">{{ sessions|length }}</div>
+            </div>
+            <div>
+                <div class="text-sm font-medium text-gray-600">Avg Session</div>
+                <div class="text-3xl font-bold text-gray-900 mt-2">{% if sessions %}{{ (total_minutes /
+                    sessions|length)|round(0) }} min{% else %}0 min{% endif %}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Focus Sessions List -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="divide-y">
+            {% for session in sessions %}
+            <div class="p-4 flex items-center justify-between">
+                <div>
+                    <div class="font-medium text-gray-900">Focus Session</div>
+                    <p class="text-sm text-gray-600">{{ session.created_at[:10] }}</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-2xl font-bold text-indigo-600">{{ session.minutes }}</div>
+                    <div class="text-xs text-gray-600">minutes</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Focus Modal -->
+<div id="focusModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <h2 class="text-lg font-bold text-gray-900 mb-4">Log Focus Session</h2>
+        <form onsubmit="createFocus(event)">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Duration (minutes)</label>
+                    <input type="number" id="focusMinutes" min="1" max="480" value="25" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="setFocusMinutes(15)"
+                        class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">15m</button>
+                    <button type="button" onclick="setFocusMinutes(25)"
+                        class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">25m</button>
+                    <button type="button" onclick="setFocusMinutes(45)"
+                        class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">45m</button>
+                    <button type="button" onclick="setFocusMinutes(60)"
+                        class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">60m</button>
+                    <button type="button" onclick="setFocusMinutes(90)"
+                        class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">90m</button>
+                    <button type="button" onclick="setFocusMinutes(120)"
+                        class="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">120m</button>
+                </div>
+            </div>
+            <div class="flex space-x-2 mt-6">
+                <button type="submit" class="btn btn-primary flex-1">Log Session</button>
+                <button type="button" onclick="closeFocusModal()" class="btn btn-secondary flex-1">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function setFocusMinutes(minutes) {
+        document.getElementById('focusMinutes').value = minutes;
+    }
+
+    function showFocusModal() {
+        document.getElementById('focusModal').classList.remove('hidden');
+    }
+
+    function closeFocusModal() {
+        document.getElementById('focusModal').classList.add('hidden');
+    }
+
+    function createFocus(e) {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('minutes', document.getElementById('focusMinutes').value);
+
+        fetch('{{ url_for("focus.create_session") }}', {
+            method: 'POST',
+            body: formData
+        }).then(r => r.json()).then(data => {
+            closeFocusModal();
+            location.reload();
+        });
+    }
+</script>
+{% endblock %}

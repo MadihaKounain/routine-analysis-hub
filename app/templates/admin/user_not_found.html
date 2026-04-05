@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Not Found - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="text-center py-12">
+    <h1 class="text-3xl font-bold text-gray-900 mb-2">User Not Found</h1>
+    <p class="text-gray-600 mb-6">The user you're looking for doesn't exist or is not accessible.</p>
+    <a href="{{ url_for('admin.users_list') }}" class="btn btn-primary">Back to Users</a>
+</div>
+{% endblock %}

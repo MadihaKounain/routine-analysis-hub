@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Routine Analytics Hub{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="bg-slate-100 text-slate-900">
+    <div class="min-h-screen flex flex-col">
+        <!-- Topbar -->
+        <header class="bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm sticky top-0 z-20">
+            <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-gradient-to-br from-indigo-600 to-sky-500 text-white text-lg shadow-lg">
+                        RA
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Routine Analytics
+                            Hub</p>
+                        {% if session.get('user_id') %}
+                        <h1 class="text-xl font-bold text-slate-900">Welcome back, {{ session.get('username') }}</h1>
+                        {% else %}
+                        <h1 class="text-xl font-bold text-slate-900">Your wellbeing command center</h1>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if session.get('user_id') %}
+                <div class="flex flex-col sm:flex-row sm:items-center sm:gap-3 gap-2 w-full sm:w-auto">
+                    <div class="hidden md:block">
+                        <input type="search" placeholder="Search tasks, mood, notes..."
+                            class="w-72 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none" />
+                    </div>
+                    <div class="rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-600 shadow-sm">
+                        Signed in as <span class="font-semibold text-slate-900">{{ session.get('username') }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </header>
+
+        <div class="flex flex-1">
+            <!-- Sidebar -->
+            {% if session.get('user_id') and not session.get('is_admin') %}
+            <aside class="w-64 bg-white shadow-sm border-r border-gray-200">
+                <div class="p-6">
+                    <h1 class="text-2xl font-bold text-indigo-600">📊 Hub</h1>
+                    <p class="text-sm text-gray-600 mt-1">Analytics & Tracking</p>
+                </div>
+
+                <nav class="px-4 space-y-2">
+                    <a href="{{ url_for('dashboard.index') }}" class="nav-link">📈 Dashboard</a>
+                    <a href="{{ url_for('tasks.index') }}" class="nav-link">✅ Tasks</a>
+                    <a href="{{ url_for('journal.index') }}" class="nav-link">📝 Journal</a>
+                    <a href="{{ url_for('habits.index') }}" class="nav-link">🔄 Habits</a>
+                    <a href="{{ url_for('finance.index') }}" class="nav-link">💰 Finance</a>
+                    <a href="{{ url_for('mood.index') }}" class="nav-link">😊 Mood</a>
+                    <a href="{{ url_for('chatbot.index') }}" class="nav-link">🤖 AI Coach</a>
+                    <a href="{{ url_for('focus.index') }}" class="nav-link">⏱️ Focus</a>
+                </nav>
+
+                <div class="p-4 border-t border-gray-200 mt-8">
+                    <p class="text-sm text-gray-600 mb-3">{{ session.get('username') }}</p>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm">Logout</a>
+                </div>
+            </aside>
+            {% elif session.get('is_admin') %}
+            <aside class="w-64 bg-white shadow-sm border-r border-gray-200">
+                <div class="p-6">
+                    <h1 class="text-2xl font-bold text-indigo-600">👨‍💼 Admin</h1>
+                    <p class="text-sm text-gray-600 mt-1">System Management</p>
+                </div>
+
+                <nav class="px-4 space-y-2">
+                    <a href="{{ url_for('admin.dashboard') }}" class="nav-link">📊 Dashboard</a>
+                    <a href="{{ url_for('admin.users_list') }}" class="nav-link">👥 Users</a>
+                </nav>
+
+                <div class="p-4 border-t border-gray-200 mt-8">
+                    <p class="text-sm text-gray-600 mb-3">{{ session.get('username') }}</p>
+                    <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm">Logout</a>
+                </div>
+            </aside>
+            {% endif %}
+
+            <!-- Page Content -->
+            <main class="flex-1 overflow-auto bg-slate-50">
+                <div class="max-w-7xl mx-auto px-6 py-8">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} mb-4">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

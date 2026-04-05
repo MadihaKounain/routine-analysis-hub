@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Habits - Routine Analytics Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-gray-900">🔄 Habits</h1>
+        <button onclick="showHabitModal()" class="btn btn-primary">+ Log Habit</button>
+    </div>
+
+    <!-- Habits Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for habit in habits %}
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900">{{ habit.name }}</h3>
+            <div class="mt-4">
+                <div class="text-4xl font-bold text-indigo-600">{{ habit.streak }} 🔥</div>
+                <div class="text-sm text-gray-600 mt-1">Current Streak</div>
+            </div>
+            <div class="bg-gray-50 rounded mt-4 p-3 text-center">
+                <div class="text-2xl font-bold text-gray-900">{{ habit.total }}</div>
+                <div class="text-xs text-gray-600">Total Completions</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not habits %}
+    <div class="bg-gray-50 rounded-lg p-8 text-center">
+        <p class="text-gray-600">No habits logged yet. Start by adding one!</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Habit Modal -->
+<div id="habitModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <h2 class="text-lg font-bold text-gray-900 mb-4">Log Habit</h2>
+        <form onsubmit="createHabit(event)">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Habit Name</label>
+                    <input type="text" id="habitName" placeholder="e.g., Morning Exercise" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                </div>
+                <p class="text-xs text-gray-600">Or select from existing habits:</p>
+                {% if habits %}
+                <div class="space-y-2">
+                    {% for habit in habits %}
+                    <button type="button" onclick="setHabitName('{{ habit.name }}')"
+                        class="w-full text-left px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        {{ habit.name }}
+                    </button>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="flex space-x-2 mt-6">
+                <button type="submit" class="btn btn-primary flex-1">Log</button>
+                <button type="button" onclick="closeHabitModal()" class="btn btn-secondary flex-1">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function showHabitModal() {
+        document.getElementById('habitModal').classList.remove('hidden');
+    }
+
+    function closeHabitModal() {
+        document.getElementById('habitModal').classList.add('hidden');
+        document.getElementById('habitName').value = '';
+    }
+
+    function setHabitName(name) {
+        document.getElementById('habitName').value = name;
+    }
+
+    function createHabit(e) {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('habit_name', document.getElementById('habitName').value);
+
+        fetch('{{ url_for("habits.create_habit") }}', {
+            method: 'POST',
+            body: formData
+        }).then(r => r.json()).then(data => {
+            closeHabitModal();
+            location.reload();
+        });
+    }
+</script>
+{% endblock %}

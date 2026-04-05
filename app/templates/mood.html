@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}Mood Tracking - Routine Analytics Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold text-gray-900">Mood Tracking</h1>
+        <button onclick="showMoodModal()" class="btn btn-primary">+ Log Mood</button>
+    </div>
+
+    <!-- Mood Summary -->
+    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg shadow-md p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-lg p-4">
+                <div class="text-sm font-medium text-gray-600">Average Mood</div>
+                <div class="text-4xl font-bold text-yellow-500 mt-3">
+                    {% if moods %}
+                    {% set mood_values = moods | selectattr('mood') | map(attribute='mood') | list %}
+                    {% if mood_values | length > 0 %}
+                    {{ (mood_values | sum / mood_values | length) | round(1) }}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Out of 10</p>
+            </div>
+            <div class="bg-white rounded-lg p-4">
+                <div class="text-sm font-medium text-gray-600">Total Entries</div>
+                <div class="text-4xl font-bold text-blue-500 mt-3">{{ moods|length }}</div>
+                <p class="text-xs text-gray-500 mt-2">All time</p>
+            </div>
+            <div class="bg-white rounded-lg p-4">
+                <div class="text-sm font-medium text-gray-600">Streak</div>
+                <div class="text-4xl font-bold text-green-500 mt-3">{{ moods|length }}</div>
+                <p class="text-xs text-gray-500 mt-2">Consecutive days</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar and Entries Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Recent Entries (Left Side - Wider) -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-lg font-bold text-gray-900">Recent Entries</h2>
+                </div>
+                <div class="divide-y max-h-96 overflow-y-auto">
+                    {% if moods %}
+                    {% for mood in moods %}
+                    <div class="p-4 hover:bg-gray-50 transition">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-start space-x-4">
+                                <span class="text-4xl leading-none">
+                                    {% if mood.mood <= 2 %}😢 {% elif mood.mood <=4 %}😞 {% elif mood.mood <=6 %}😐 {%
+                                        elif mood.mood <=8 %}😊 {% else %}😄{% endif %} </span>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">Mood: <span
+                                                    class="text-lg text-yellow-500">{{ mood.mood }}/10</span></div>
+                                            <p class="text-sm text-gray-500 mt-1">{{ mood.created_at[:10] }} at {{
+                                                mood.created_at[11:19] }}</p>
+                                            {% if mood.note %}
+                                            <p class="text-sm text-gray-700 mt-2 italic">{{ mood.note }}</p>
+                                            {% endif %}
+                                        </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="p-8 text-center text-gray-500">
+                        <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                            </path>
+                        </svg>
+                        <p>No mood entries yet. Start logging your mood today!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Heatmap (Right Side) -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-lg font-bold text-gray-900 mb-4">Your Mood Heatmap</h2>
+            <div id="heatmapContainer" class="overflow-x-auto">
+                <div id="heatmap" style="display: inline-block;"></div>
+            </div>
+
+            <!-- Heatmap Legend -->
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <p class="text-xs font-semibold text-gray-700 mb-3">Intensity Scale</p>
+                <div class="flex items-center justify-between text-xs">
+                    <span class="text-gray-600">No Data</span>
+                    <div class="flex gap-1">
+                        <div class="w-3 h-3 bg-gray-200 rounded border border-gray-300"></div>
+                        <div class="w-3 h-3 bg-red-200 rounded border border-gray-300"></div>
+                        <div class="w-3 h-3 bg-red-400 rounded border border-gray-300"></div>
+                        <div class="w-3 h-3 bg-yellow-400 rounded border border-gray-300"></div>
+                        <div class="w-3 h-3 bg-green-400 rounded border border-gray-300"></div>
+                        <div class="w-3 h-3 bg-green-600 rounded border border-gray-300"></div>
+                    </div>
+                    <span class="text-gray-600">Excellent</span>
+                </div>
+                <p class="text-xs text-gray-500 mt-3">Last 52 weeks of mood data</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AI Coach Chatbot -->
+<!-- Chatbot moved to separate page -->
+
+<!-- Chatbot Toggle Button -->
+<!-- Chatbot moved to separate page -->
+
+<!-- Mood Modal -->
+<div id="moodModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <h2 class="text-xl font-bold text-gray-900 mb-6">How are you feeling?</h2>
+        <form onsubmit="createMood(event)">
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-4">Select your mood</label>
+                    <input type="range" id="moodValue" min="1" max="10" value="5"
+                        class="w-full h-2 bg-gradient-to-r from-red-400 to-green-400 rounded-lg appearance-none cursor-pointer">
+                    <div class="text-center mt-6">
+                        <span id="moodEmoji" class="text-7xl">😊</span>
+                        <div class="mt-3">
+                            <div class="text-2xl font-bold text-gray-900"><span id="moodNum">5</span>/10</div>
+                            <div class="text-sm text-gray-600 mt-1"><span id="moodLabel">Neutral</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">What's on your mind? (optional)</label>
+                    <textarea id="moodNote" placeholder="Share about your day..." rows="3"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                </div>
+            </div>
+            <div class="flex space-x-3 mt-6">
+                <button type="submit"
+                    class="flex-1 bg-blue-500 text-white font-bold py-2 rounded-lg hover:bg-blue-600 transition">Save</button>
+                <button type="button" onclick="closeMoodModal()"
+                    class="flex-1 bg-gray-300 text-gray-700 font-bold py-2 rounded-lg hover:bg-gray-400 transition">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    const moodEmojis = ['', '😢', '😞', '😔', '😐', '😐', '😐', '🙂', '😊', '😄', '😍'];
+    const moodLabels = ['', 'Terrible', 'Bad', 'Poor', 'Okay', 'Neutral', 'Neutral', 'Good', 'Great', 'Excellent', 'Amazing'];
+    let moodData = {{ (moods | tojson) if moods else '{}' | safe }};
+
+    // Generate Calendar Heatmap (GitHub-style)
+    function generateHeatmap() {
+        const heatmap = document.getElementById('heatmap');
+        heatmap.innerHTML = '';
+
+        // Create mood map by date
+        const moodsByDate = {};
+        moods.forEach(mood => {
+            const date = mood.created_at.split('T')[0];
+            moodsByDate[date] = Math.max(moodsByDate[date] || 0, mood.mood || 0);
+        });
+
+        // Generate 52 weeks of data
+        const weeks = [];
+        const today = new Date();
+        for (let w = 51; w >= 0; w--) {
+            const week = [];
+            for (let d = 6; d >= 0; d--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - (w * 7 + d));
+                const dateStr = date.toISOString().split('T')[0];
+                const moodValue = moodsByDate[dateStr] || 0;
+
+                week.push({
+                    date: dateStr,
+                    mood: moodValue,
+                    dayOfWeek: date.getDay()
+                });
+            }
+            weeks.push(week);
+        }
+
+        // Build HTML
+        const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        let html = '<div class="flex gap-1">';
+
+        // Render weeks
+        weeks.forEach((week, idx) => {
+            html += '<div class="flex flex-col gap-1">';
+            week.forEach((day, dayIdx) => {
+                const intensity = day.mood / 10;
+                let bgColor = 'bg-gray-200';
+                if (intensity > 0) {
+                    if (intensity <= 0.3) bgColor = 'bg-red-200';
+                    else if (intensity <= 0.5) bgColor = 'bg-red-400';
+                    else if (intensity <= 0.7) bgColor = 'bg-yellow-400';
+                    else bgColor = 'bg-green-500';
+                }
+
+                html += `<div class="w-3 h-3 ${bgColor} rounded border border-gray-300 cursor-pointer hover:ring-2 hover:ring-blue-500" title="${day.date}: Mood ${day.mood}/10"></div>`;
+            });
+            html += '</div>';
+        });
+        html += '</div>';
+
+        heatmap.innerHTML = html;
+    }
+
+    // Chatbot functions moved to separate page
+
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Handle Enter key in chat
+    // Chatbot functions moved to separate page
+
+    document.getElementById('moodValue').addEventListener('change', function () {
+        const mood = parseInt(this.value);
+        document.getElementById('moodEmoji').textContent = moodEmojis[mood] || '😐';
+        document.getElementById('moodLabel').textContent = moodLabels[mood] || 'Neutral';
+        document.getElementById('moodNum').textContent = mood;
+    });
+
+    function showMoodModal() {
+        document.getElementById('moodModal').classList.remove('hidden');
+    }
+
+    function closeMoodModal() {
+        document.getElementById('moodModal').classList.add('hidden');
+    }
+
+    function createMood(e) {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('mood', document.getElementById('moodValue').value);
+        formData.append('note', document.getElementById('moodNote').value);
+
+        fetch('{{ url_for("mood.create_mood") }}', {
+            method: 'POST',
+            body: formData
+        }).then(r => r.json()).then(data => {
+            closeMoodModal();
+            location.reload();
+        });
+    }
+</script>
+{% endblock %}
